@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi.security import OAuth2PasswordRequestForm
 from backend.app.database.mongodb import get_database
 
 from backend.app.models.user_model import (UserSignup,UserLogin)
@@ -6,6 +7,10 @@ from backend.app.models.user_model import (UserSignup,UserLogin)
 from backend.app.auth.hashing import (hash_pwd,verify_pwd)
 
 from backend.app.auth.jwt_handler import (create_access_token)
+
+from backend.app.auth.dependencies import (
+    get_current_user
+)
 
 router = APIRouter(
     prefix="/auth",
@@ -61,15 +66,16 @@ async def signup(user: UserSignup):
         )
     
 @router.post("/login")
-async def login(user: UserLogin):
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends()
+):
 
     try:
 
         db = get_database()
 
-        # FIND USER
         existing_user = await db.users.find_one(
-            {"email": user.email}
+            {"email": form_data.username}
         )
 
         if not existing_user:
@@ -79,9 +85,8 @@ async def login(user: UserLogin):
                 detail="User not found"
             )
 
-        # VERIFY PASSWORD
         password_valid = verify_pwd(
-            user.password,
+            form_data.password,
             existing_user["password"]
         )
 
@@ -92,7 +97,6 @@ async def login(user: UserLogin):
                 detail="Invalid password"
             )
 
-        # GENERATE JWT TOKEN
         access_token = create_access_token(
             data={
                 "email": existing_user["email"]
@@ -100,7 +104,6 @@ async def login(user: UserLogin):
         )
 
         return {
-            "success": True,
             "access_token": access_token,
             "token_type": "bearer"
         }
@@ -115,3 +118,13 @@ async def login(user: UserLogin):
             status_code=500,
             detail=f"Login failed: {str(e)}"
         )
+
+@router.get("/profile")
+async def get_profile(
+    current_user=Depends(get_current_user)
+):
+
+    return {
+        "name": current_user["name"],
+        "email": current_user["email"]
+    }

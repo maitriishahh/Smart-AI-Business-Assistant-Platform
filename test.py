@@ -13,8 +13,19 @@
 
 # asyncio.run(test())
 
-from backend.app.config.settings import Settings
+# from backend.app.config.settings import Settings
 
-print("Mongo URL:", Settings.MONGODB_URL)
-print("Database:", Settings.DATABASE_NAME)
-print("Gemini Key:", Settings.GEMINI_API_KEY)
+# print("Mongo URL:", Settings.MONGODB_URL)
+# print("Database:", Settings.DATABASE_NAME)
+# print("Gemini Key:", Settings.GEMINI_API_KEY)
+
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+hashed = pwd_context.hash("maitri123")
+
+print(hashed)
