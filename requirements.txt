@@ -11,6 +11,7 @@ email-validator
 python-multipart
 
 langchain
+langchain-community
 chromadb
 langgraph
 google-genai
