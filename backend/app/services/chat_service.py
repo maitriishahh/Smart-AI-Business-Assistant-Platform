@@ -1,24 +1,50 @@
 from google import genai
 from backend.app.config.settings import settings
 from backend.app.rag.retriever import retrieve_relevant_chunks
+from backend.app.workflows.chat_workflow import(get_convo_context, update_convo_context)
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-async def ask_question(question:str, user_id:str):
-    chunks = await retrieve_relevant_chunks(question=question,user_id=user_id)
+async def ask_question(message:str, session_id: str, user_id:str):
+    chunks = await retrieve_relevant_chunks(question=message,user_id=user_id)
+    
     if not chunks:
-        return "No relevant documents found."
+        return {
+            "response": (
+                "I could not find relevant "
+                "information in the uploaded documents."
+            ),
+            "session_id": session_id,
+            "sources_used": False
+        }
+    
     context = "\n\n".join(chunks)
+
+    history = get_convo_context(session_id)
+    formatted_history = ""
+    for chat in history:
+        formatted_history += (
+            f"User: {chat['user']}\n"
+            f"Assistant: {chat['assistant']}\n\n"
+        )
     prompt = f"""
-You are an AI business assistant. Answer ONLY usig the provided context.If the answer is not found,
-say:
+You are an intelligent AI business assistant.
+
+STRICT RULES:
+- Answer ONLY from provided context.
+- Maintain conversational continuity.
+- Be professional and concise.
+- If answer not found, say:
 "I could not find that information in the uploaded documents."
 
-CONTEXT:
+PREVIOUS CONVERSATION:
+{formatted_history}
+
+DOCUMENT CONTEXT:
 {context}
 
-QUESTION:
-{question}
+CURRENT USER MESSAGE:
+{message}
 """
 
     response = client.models.generate_content(
@@ -26,4 +52,12 @@ QUESTION:
         contents=prompt
     )
 
-    return response.text
+    assistant_reply = response.text
+    
+    update_convo_context(session_id=session_id, user_msg = message, assistant_response=assistant_reply)
+    
+    return {
+        "response":assistant_reply,
+        "session_id":session_id,
+        "sources_used":True
+    }

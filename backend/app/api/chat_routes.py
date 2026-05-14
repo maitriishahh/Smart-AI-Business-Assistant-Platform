@@ -9,6 +9,8 @@ from backend.app.auth.dependencies import (
     get_current_user
 )
 
+from backend.app.models.chat_model import (ChatRequest)
+
 from backend.app.services.chat_service import (
     ask_question
 )
@@ -18,11 +20,6 @@ router = APIRouter(
     tags=["Chat"]
 )
 
-
-class ChatRequest(BaseModel):
-    question: str
-
-
 @router.post("/query")
 async def chat_query(
     payload: ChatRequest,
@@ -30,10 +27,9 @@ async def chat_query(
 ):
 
     answer = await ask_question(
-        question=payload.question,
+        message=payload.message,
+        session_id=payload.session_id,
         user_id=str(current_user["_id"])
     )
 
-    return {
-        "answer": answer
-    }
+    return answer
