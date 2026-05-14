@@ -6,7 +6,8 @@ client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 async def ask_question(question:str, user_id:str):
     chunks = await retrieve_relevant_chunks(question=question,user_id=user_id)
-
+    if not chunks:
+        return "No relevant documents found."
     context = "\n\n".join(chunks)
     prompt = f"""
 You are an AI business assistant. Answer ONLY usig the provided context.If the answer is not found,
@@ -21,7 +22,7 @@ QUESTION:
 """
 
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.5-flash",
         contents=prompt
     )
 

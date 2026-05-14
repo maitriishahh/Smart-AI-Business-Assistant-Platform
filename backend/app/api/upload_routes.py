@@ -13,7 +13,7 @@ router = APIRouter(
 UPLOAD_DIR =  "backend/app/uploads"
 os.makedirs(UPLOAD_DIR,exist_ok=True)
 
-@router.get("pdf")
+@router.post("/pdf")
 async def upload_pdf(file:UploadFile=File(...),
 current_user: dict = Depends(get_current_user)):
     if not file.filename.endswith(".pdf"):
