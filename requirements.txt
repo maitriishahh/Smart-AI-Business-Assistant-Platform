@@ -9,6 +9,7 @@ python-dotenv
 pydantic
 email-validator
 python-multipart
+streamlit 
 
 langchain
 langchain-community

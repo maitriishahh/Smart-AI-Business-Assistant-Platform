@@ -8,19 +8,21 @@ client = genai.Client(api_key=settings.GEMINI_API_KEY)
 async def ask_question(message:str, session_id: str, user_id:str):
     chunks = await retrieve_relevant_chunks(question=message,user_id=user_id)
     
-    if not chunks:
-        return {
-            "response": (
-                "I could not find relevant "
-                "information in the uploaded documents."
-            ),
-            "session_id": session_id,
-            "sources_used": False
-        }
+    # if not chunks:
+    #     return {
+    #         "response": (
+    #             "I could not find relevant "
+    #             "information in the uploaded documents."
+    #         ),
+    #         "session_id": session_id,
+    #         "sources_used": False
+    #     }
     
-    context = "\n\n".join(chunks)
+    context = ("\n\n".join(chunks)
+        if chunks
+        else "No relevant uploaded document context available.")
 
-    history = get_convo_context(session_id)
+    history = await get_convo_context(user_id)
     formatted_history = ""
     for chat in history:
         formatted_history += (
@@ -31,11 +33,13 @@ async def ask_question(message:str, session_id: str, user_id:str):
 You are an intelligent AI business assistant.
 
 STRICT RULES:
-- Answer ONLY from provided context.
-- Maintain conversational continuity.
-- Use a professional business tone.
+- Prioritize uploaded document context when available.
+- Use previous conversation history for conversational continuity.
+- If the answer is unavailable in uploaded documents but exists in previous conversation history, use the conversation history.
+- Maintain professional business tone.
 - Avoid slang or overly casual wording.
 - Keep responses concise and factual.
+- If information is unavailable in both uploaded documents and conversation history, clearly say so.
 - If answer not found, say:
 "I could not find that information in the uploaded documents."
 
@@ -56,7 +60,7 @@ CURRENT USER MESSAGE:
 
     assistant_reply = response.text
     
-    update_convo_context(session_id=session_id, user_msg = message, assistant_response=assistant_reply)
+    await update_convo_context(user_id=user_id,session_id=session_id, user_msg = message, assistant_response=assistant_reply)
     
     return {
         "response":assistant_reply,
