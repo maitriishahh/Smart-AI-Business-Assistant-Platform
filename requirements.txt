@@ -16,5 +16,6 @@ langchain-community
 chromadb
 langgraph
 google-genai
+groq
 sentence-transformers
 pypdf
