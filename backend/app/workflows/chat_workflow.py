@@ -1,6 +1,7 @@
 from datetime import datetime, UTC
 from backend.app.database.mongodb import database
 
+
 conversation_collection = database["conversations"]
 
 
