@@ -112,8 +112,27 @@ def extract_phone(text):
 
 def extract_requirements(text):
 
-    return text
+    requirement_keywords = [
+        "crm",
+        "automation",
+        "integration",
+        "pricing",
+        "dashboard",
+        "analytics",
+        "ai",
+        "software",
+        "service",
+        "platform"
+    ]
 
+    text_lower = text.lower()
+
+    for keyword in requirement_keywords:
+
+        if keyword in text_lower:
+            return text
+
+    return None
 
 # =========================
 # LEAD CLASSIFICATION
@@ -123,11 +142,28 @@ def classify_lead(text):
 
     text = text.lower()
 
-    if "pricing" in text or "demo" in text:
-        return "hot"
+    hot_keywords = [
+        "pricing",
+        "demo",
+        "buy",
+        "crm",
+        "automation",
+        "subscription"
+    ]
 
-    elif "interested" in text:
-        return "warm"
+    warm_keywords = [
+        "interested",
+        "looking",
+        "exploring"
+    ]
+
+    for keyword in hot_keywords:
+        if keyword in text:
+            return "hot"
+
+    for keyword in warm_keywords:
+        if keyword in text:
+            return "warm"
 
     return "cold"
 
@@ -166,6 +202,8 @@ def get_missing_fields(state):
     if not state["company"]:
         missing.append("company name")
 
+    if not state["requirements"]:
+        missing.append("requirements")
     return missing
 
 # =========================

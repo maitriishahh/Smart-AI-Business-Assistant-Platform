@@ -55,6 +55,6 @@ class PlannerAgent:
 
         return {
             "task": "general_chat",
-            "needs_retrieval": True,
+            "needs_retrieval": False,
             "needs_validation": True
         }

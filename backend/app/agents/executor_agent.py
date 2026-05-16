@@ -4,7 +4,6 @@ from backend.app.workflows.chat_workflow import (
     get_convo_context,
     update_convo_context
 )
-from backend.app.agents.prompts import ASSISTANT_PROMPT
 from google import genai
 from groq import Groq
 
@@ -55,13 +54,58 @@ class ExecutorAgent:
         # =========================
         # RETRIEVE DOCUMENTS
         # =========================
-        retrieved_docs = await retrieve_relevant_chunks(
+        retrieved_docs = []
+        if plan["needs_retrieval"]:
+
+            prompt = f"""
+You are an AI business assistant.
+
+RULES:
+- Use uploaded document context when relevant.
+- Use conversation history for continuity.
+- Be concise and professional.
+- Avoid hallucinations or invented information.
+- Answer ONLY using uploaded document context.
+- Do NOT use outside knowledge.
+- If information is unavailable, say:
+"I could not find that information in the uploaded documents."
+
+Conversation:
+{formatted_history}
+
+Document Context:
+{context}
+
+User Message:
+{message}
+"""
+
+        else:
+
+            prompt = f"""
+You are an AI business assistant.
+
+RULES:
+- Use conversation history for continuity.
+- Be concise and professional.
+- Avoid hallucinations or invented information.
+- If no relevant document context exists, you may answer using general knowledge.
+- If you genuinely do not know the answer, say:
+"I could not find that information."
+
+Conversation:
+{formatted_history}
+
+User Message:
+{message}
+"""
+            retrieved_docs = await retrieve_relevant_chunks(
             question=message,
             user_id=user_id
         )
 
-        # LIMIT CHUNKS
-        retrieved_docs = retrieved_docs[:2]
+            # LIMIT CHUNKS
+            retrieved_docs = retrieved_docs[:2]
 
         # =========================
         # BUILD CONTEXT
@@ -72,13 +116,7 @@ class ExecutorAgent:
             else "No relevant uploaded document context available."
         )
 
-        # =========================
-        # PROMPT
-        # =========================
-        prompt = ASSISTANT_PROMPT.format(formatted_history=formatted_history,
-                                         context=context,
-                                         message=message)
-
+    
         # =========================
         # GEMINI PRIMARY
         # =========================

@@ -12,12 +12,30 @@ from backend.app.memory.lead_state import (
     get_lead_state
 )
 
+def is_greeting(message: str):
+
+    greetings = [
+        "hi",
+        "hello",
+        "hey",
+        "good morning",
+        "good evening",
+        "good afternoon"
+    ]
+
+    return message.lower().strip() in greetings
 
 async def ask_question(
     message: str,
     session_id: str,
     user_id: str
 ):
+
+    if is_greeting(message):
+
+        return {
+        "response": "Hello! How can I help you today?"
+    }
 
     state = get_lead_state(session_id)
 
@@ -46,6 +64,7 @@ Please provide your:
 - Name
 - Email
 - Company Name
+- Requirements
 
 (Optional: Phone Number)
 """

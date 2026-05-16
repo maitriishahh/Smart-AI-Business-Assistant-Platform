@@ -9,6 +9,7 @@ from backend.app.services.lead_service import (
     extract_name,
     extract_company,
     extract_phone,
+    extract_requirements,
     classify_lead,
     get_missing_fields,
     save_lead
@@ -49,7 +50,10 @@ async def lead_capture_pipeline(
 
         await save_lead(lead_data)
 
-        # Reset state
+        # =========================
+        # RESET STATE
+        # =========================
+
         state["collecting"] = False
         state["awaiting_phone"] = False
         state["name"] = None
@@ -72,6 +76,7 @@ async def lead_capture_pipeline(
     extracted_email = extract_email(message)
     extracted_company = extract_company(message)
     extracted_phone = extract_phone(message)
+    extracted_requirements = extract_requirements(message)
 
     if extracted_name:
         state["name"] = extracted_name
@@ -84,6 +89,9 @@ async def lead_capture_pipeline(
 
     if extracted_phone:
         state["phone"] = extracted_phone
+
+    if extracted_requirements:
+        state["requirements"] = extracted_requirements
 
     # =========================
     # CHECK MISSING FIELDS
@@ -101,12 +109,6 @@ async def lead_capture_pipeline(
             "completed": False,
             "reply": f"Please provide your {missing_text}."
         }
-
-    # =========================
-    # STORE REQUIREMENTS
-    # =========================
-
-    state["requirements"] = message
 
     # =========================
     # ASK OPTIONAL PHONE
@@ -127,8 +129,7 @@ Otherwise, type 'skip'.
         }
 
     # =========================
-    # SAVE DIRECTLY IF PHONE
-    # ALREADY PROVIDED
+    # SAVE LEAD
     # =========================
 
     lead_data = {
@@ -145,7 +146,10 @@ Otherwise, type 'skip'.
 
     await save_lead(lead_data)
 
-    # Reset state
+    # =========================
+    # RESET STATE
+    # =========================
+
     state["collecting"] = False
     state["awaiting_phone"] = False
     state["name"] = None
