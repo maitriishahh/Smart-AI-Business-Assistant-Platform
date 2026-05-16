@@ -15,6 +15,9 @@ from backend.app.services.lead_service import (
     save_lead
 )
 
+from backend.app.automations.followup_generator import (
+    generate_followup
+)
 
 async def lead_capture_pipeline(
     message: str,
@@ -49,7 +52,8 @@ async def lead_capture_pipeline(
         }
 
         await save_lead(lead_data)
-
+        followup_message = generate_followup(
+            lead_data)   
         # =========================
         # RESET STATE
         # =========================
@@ -63,10 +67,16 @@ async def lead_capture_pipeline(
         state["requirements"] = None
 
         return {
-            "completed": True,
-            "reply": "Thank you! Our team will contact you soon.",
-            "lead_data": lead_data
-        }
+    "completed": True,
+    "reply": f"""
+Thank you! Your lead has been captured successfully.
+
+AI-Generated Follow-Up Message:
+
+{followup_message}
+""".strip(),
+    "lead_data": lead_data
+}
 
     # =========================
     # NORMAL EXTRACTION
@@ -145,7 +155,9 @@ Otherwise, type 'skip'.
     }
 
     await save_lead(lead_data)
-
+    followup_message = generate_followup(
+        lead_data
+)
     # =========================
     # RESET STATE
     # =========================
@@ -159,7 +171,13 @@ Otherwise, type 'skip'.
     state["requirements"] = None
 
     return {
-        "completed": True,
-        "reply": "Thank you! Our team will contact you soon.",
-        "lead_data": lead_data
-    }
+    "completed": True,
+    "reply": f"""
+Thank you! Your lead has been captured successfully.
+
+AI-Generated Follow-Up Message:
+
+{followup_message}
+""".strip(),
+    "lead_data": lead_data
+}
