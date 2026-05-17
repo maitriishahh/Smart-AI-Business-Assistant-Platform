@@ -57,6 +57,52 @@ async def crm_sync_route(request: CRMLeadRequest):
         "data": result
     }
 
+@router.get("/crm/records")
+async def get_crm_records():
+
+    cursor = (
+        db["leads"]
+        .find()
+        .sort("created_at", -1)
+    )
+
+    formatted = []
+
+    async for record in cursor:
+
+        formatted.append({
+
+            "name":
+                record.get("name"),
+
+            "email":
+                record.get("email"),
+
+            "company":
+                record.get("company"),
+
+            "phone":
+                record.get("phone"),
+
+            "requirements":
+                record.get("requirements"),
+
+            "priority":
+                record.get("priority"),
+
+            "timestamp":
+                str(
+                    record.get(
+                        "created_at",
+                        ""
+                    )
+                )
+        })
+
+    return {
+        "records": formatted
+    }
+
 @router.post("/followup/generate")
 async def followup_route(request: FollowupRequest):
 

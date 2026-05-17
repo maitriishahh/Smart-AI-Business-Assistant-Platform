@@ -56,7 +56,7 @@ export default function Dashboard() {
       setCrmLoading(true);
 
       const response = await API.get(
-        "/automation/crm/sync"
+        "/automation/crm/records"
       );
 
       setCrmRecords(

@@ -91,51 +91,7 @@ async def ask_question(
 
 
 
-    # =========================================
-    # STRONG LEAD INTENT
-    # =========================================
-
-    strong_lead_keywords = [
-
-        "hire",
-        "hiring",
-        "book a consultation",
-        "book consultation",
-        "book a call",
-        "schedule a call",
-        "contact me",
-        "i want your service",
-        "interested in your service",
-        "work with you",
-        "consultation",
-        "my email is",
-        "my company is",
-    ]
-
-    message_lower = message.lower()
-
-    if any(
-        keyword in message_lower
-        for keyword in strong_lead_keywords
-    ):
-
-        state["collecting"] = True
-
-        return {
-            "response": """
-I'd be happy to help.
-
-Please provide your:
-- Name
-- Email
-- Company Name
-- Requirements
-
-(Optional: Phone Number)
-"""
-        }
-
-
+   
 
     # =========================================
     # MEMORY CONTEXT
@@ -160,6 +116,55 @@ Please provide your:
         user_id=user_id
     )
 
+
+ # =========================================
+    # STRONG LEAD INTENT
+    # =========================================
+
+    strong_lead_keywords = [
+
+    "hire",
+    "hiring",
+    "book a consultation",
+    "book consultation",
+    "book a call",
+    "schedule a call",
+    "schedule a meeting",
+    "contact me",
+    "i want your service",
+    "interested in your service",
+    "work with you",
+    "consultation",
+    "demo",
+    "my email is",
+    "my company is",
+]
+
+    message_lower = message.lower()
+
+    if (
+    any(
+        keyword in message_lower
+        for keyword in strong_lead_keywords
+    )
+    and not state["collecting"]
+):
+
+        state["collecting"] = True
+
+        return {
+            "response": """
+I'd be happy to help.
+
+Please provide your:
+- Name
+- Email
+- Company Name
+- Requirements
+
+(Optional: Phone Number)
+"""
+        }
 
 
     # =========================================

@@ -22,9 +22,25 @@ async def get_convo_context(
     async for convo in cursor:
 
         conversations.append({
-            "user": convo["user_message"],
-            "assistant": convo["assistant_response"]
-        })
+
+    "user":
+
+        convo.get(
+            "user_message",
+
+            convo.get(
+                "user_msg",
+                ""
+            )
+        ),
+
+    "assistant":
+
+        convo.get(
+            "assistant_response",
+            ""
+        )
+})
 
     conversations.reverse()
 

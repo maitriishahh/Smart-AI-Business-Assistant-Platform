@@ -21,9 +21,26 @@ async def get_recent_conversations(user_id: str, limit: int=5):
     conversations = []
 
     async for conversation in convo:
+
         conversations.append({
-            "user_msg":conversation['user_msg'],
-            "assistant_response":conversation['assistant_response']
+
+            "user_msg":
+
+                conversation.get(
+                    "user_msg",
+
+                    conversation.get(
+                        "user_message",
+                        ""
+                    )
+                ),
+
+            "assistant_response":
+
+                conversation.get(
+                    "assistant_response",
+                    ""
+                )
         })
     conversations.reverse()
     return conversations
