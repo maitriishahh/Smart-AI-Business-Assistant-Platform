@@ -63,17 +63,15 @@ function Chat() {
         }
       );
 
-      // Small Upload Notification
+      // Upload Notification
       setUploadStatus(
         `PDF "${file.name}" uploaded successfully`
       );
 
-      // Auto Remove Notification
       setTimeout(() => {
         setUploadStatus("");
       }, 3000);
 
-      // Clear File Input
       e.target.value = null;
 
     } catch (error) {
@@ -151,15 +149,30 @@ function Chat() {
 
   return (
 
-    <div className="flex h-screen bg-slate-900 text-white">
+    <div className="flex bg-slate-950 min-h-screen text-white">
 
+      {/* Sidebar */}
       <Sidebar />
 
-      <div className="flex-1 flex flex-col p-6">
+
+
+      {/* Main Content */}
+      <main className="
+        flex-1
+        ml-64
+        p-8
+        flex
+        flex-col
+        h-screen
+      ">
 
         {/* Header */}
 
-        <h1 className="text-4xl font-bold mb-6">
+        <h1 className="
+          text-4xl
+          font-bold
+          mb-6
+        ">
           AI Chat Assistant
         </h1>
 
@@ -169,13 +182,17 @@ function Chat() {
 
         <div className="
           bg-slate-800
-          p-4
+          p-5
           rounded-2xl
           shadow-lg
-          mb-4
+          mb-5
         ">
 
-          <h2 className="text-lg font-semibold mb-3">
+          <h2 className="
+            text-xl
+            font-semibold
+            mb-4
+          ">
             Upload PDF for RAG
           </h2>
 
@@ -188,6 +205,7 @@ function Chat() {
               p-3
               rounded-xl
               cursor-pointer
+              w-full
             "
           />
 
@@ -217,7 +235,7 @@ function Chat() {
           flex-1
           bg-slate-800
           rounded-2xl
-          p-4
+          p-6
           overflow-y-auto
           shadow-lg
         ">
@@ -254,14 +272,15 @@ function Chat() {
 
 
 
-              {/* Message Bubble */}
+              {/* Bubble */}
 
               <div
                 className={`
                   p-4
                   rounded-2xl
-                  max-w-2xl
+                  max-w-3xl
                   whitespace-pre-wrap
+                  break-words
                   ${
                     msg.role === "user"
                       ? "bg-blue-600"
@@ -291,8 +310,8 @@ function Chat() {
               <span className="
                 text-sm
                 text-slate-400
-                mb-1
                 block
+                mb-1
               ">
                 AI Assistant
               </span>
@@ -312,7 +331,7 @@ function Chat() {
 
 
 
-          {/* Auto Scroll Ref */}
+          {/* Auto Scroll */}
 
           <div ref={messagesEndRef}></div>
 
@@ -322,7 +341,11 @@ function Chat() {
 
         {/* Input Section */}
 
-        <div className="flex mt-4 gap-4">
+        <div className="
+          flex
+          gap-4
+          mt-5
+        ">
 
           <input
             className="
@@ -351,7 +374,7 @@ function Chat() {
           <button
             className="
               bg-blue-600
-              px-6
+              px-8
               rounded-2xl
               hover:bg-blue-500
               transition
@@ -369,7 +392,7 @@ function Chat() {
 
         </div>
 
-      </div>
+      </main>
 
     </div>
   );

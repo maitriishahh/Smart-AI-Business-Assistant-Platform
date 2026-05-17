@@ -34,7 +34,7 @@ export default function Analytics() {
             </div>
             <div className="bg-slate-800 rounded-2xl p-8 shadow">
               <div className="text-slate-400 mb-2">Uploaded Documents</div>
-              <div className="text-3xl font-bold text-white">{metrics.total_documents}</div>
+              <div className="text-3xl font-bold text-white">{metrics.uploaded_documents}</div>
             </div>
             <div className="bg-slate-800 rounded-2xl p-8 shadow">
               <div className="text-slate-400 mb-2">CRM Syncs</div>

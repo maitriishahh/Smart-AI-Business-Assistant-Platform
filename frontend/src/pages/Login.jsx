@@ -10,70 +10,202 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
+
+
+  // =========================================
+  // HANDLE LOGIN
+  // =========================================
+
   const handleLogin = async () => {
 
-  try {
+    if (!email || !password) {
 
-    const formData = new URLSearchParams();
+      alert("Please fill all fields");
 
-    formData.append("username", email);
-    formData.append("password", password);
+      return;
+    }
 
-    const response = await API.post(
-      "/auth/login",
-      formData,
-      {
-        headers: {
-          "Content-Type":
-            "application/x-www-form-urlencoded"
+    setLoading(true);
+
+    try {
+
+      const formData = new URLSearchParams();
+
+      formData.append(
+        "username",
+        email
+      );
+
+      formData.append(
+        "password",
+        password
+      );
+
+
+
+      const response = await API.post(
+
+        "/auth/login",
+
+        formData,
+
+        {
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded"
+          }
         }
-      }
-    );
+      );
 
-    localStorage.setItem(
-      "token",
-      response.data.access_token
-    );
 
-    navigate("/dashboard");
 
-  } catch (error) {
+      console.log("LOGIN RESPONSE:");
 
-    console.log(error);
+      console.log(response.data);
 
-    alert("Login Failed");
-  }
-};
+
+
+      // =========================================
+      // SAVE TOKEN
+      // =========================================
+
+      localStorage.setItem(
+
+        "token",
+
+        response.data.access_token
+      );
+
+
+
+      // =========================================
+      // REDIRECT
+      // =========================================
+
+      window.location.href = "/dashboard";
+
+
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        error.response?.data?.detail ||
+        "Login Failed"
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
+  };
+
+
+
+  // =========================================
+  // UI
+  // =========================================
 
   return (
 
-    <div className="flex items-center justify-center h-screen">
+    <div className="
+      flex
+      items-center
+      justify-center
+      h-screen
+      bg-slate-950
+      text-white
+    ">
 
-      <div className="bg-slate-800 p-8 rounded-2xl w-96 shadow-lg">
+      <div className="
+        bg-slate-800
+        p-10
+        rounded-2xl
+        w-[400px]
+        shadow-2xl
+      ">
 
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          Login
+        {/* Title */}
+
+        <h1 className="
+          text-4xl
+          font-semi-bold
+          mb-8
+          text-center
+        ">
+          AI Business Assistant Platform
         </h1>
 
+
+
+        {/* Email */}
+
         <input
-          className="w-full p-3 mb-4 rounded bg-slate-700"
+          className="
+            w-full
+            p-4
+            mb-4
+            rounded-xl
+            bg-slate-700
+            outline-none
+          "
           type="email"
           placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
+          value={email}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
         />
+
+
+
+        {/* Password */}
 
         <input
-          className="w-full p-3 mb-4 rounded bg-slate-700"
+          className="
+            w-full
+            p-4
+            mb-6
+            rounded-xl
+            bg-slate-700
+            outline-none
+          "
           type="password"
           placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
         />
 
+
+
+        {/* Login Button */}
+
         <button
-          className="w-full bg-blue-600 p-3 rounded-lg"
+          className="
+            w-full
+            bg-blue-600
+            hover:bg-blue-500
+            transition
+            p-4
+            rounded-xl
+            font-semibold
+            disabled:opacity-50
+          "
           onClick={handleLogin}
+          disabled={loading}
         >
-          Login
+
+          {
+            loading
+              ? "Logging in..."
+              : "Login"
+          }
+
         </button>
 
       </div>

@@ -4,9 +4,11 @@ from datetime import datetime, UTC
 from backend.app.automations.email_summary import summarize_email
 from backend.app.automations.crm_sync import sync_lead_to_crm
 from backend.app.automations.followup_generator import generate_followup 
+from backend.app.database.mongodb import database
 
 router = APIRouter()
 
+db = database
 
 class EmailRequest(BaseModel):
     email_content: str
@@ -30,7 +32,13 @@ class FollowupRequest(BaseModel):
 async def summarize_email_route(request: EmailRequest):
 
     result = await summarize_email(request.email_content)
+    await db["automation_logs"].insert_one({
 
+    "type": "email_summary",
+
+    "timestamp": datetime.now(UTC)
+})
+    
     return {
         "success": True,
         "data": result,
@@ -54,10 +62,21 @@ async def followup_route(request: FollowupRequest):
 
     lead_data = request.model_dump()
 
-    followup_type = lead_data.pop("followup_type")
-    result = await generate_followup(
-        lead_data, followup_type
+    followup_type = lead_data.pop(
+        "followup_type"
     )
+
+    result = await generate_followup(
+        lead_data,
+        followup_type
+    )
+
+    await db["automation_logs"].insert_one({
+
+        "type": "followup_generation",
+
+        "timestamp": datetime.now(UTC)
+    })
 
     return {
         "success": True,

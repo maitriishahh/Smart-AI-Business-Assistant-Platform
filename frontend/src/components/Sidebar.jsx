@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 
 const navItems = [
   { name: "Dashboard", path: "/dashboard" },
+  { name: "Chat Assistant", path: "/chat" },
   { name: "Analytics", path: "/analytics" },
   { name: "Leads", path: "/leads" },
   { name: "Chat Logs", path: "/chat-logs" },
@@ -13,7 +14,7 @@ export default function Sidebar() {
   return (
     <aside className="fixed top-0 left-0 h-full w-64 bg-slate-950 flex flex-col py-8 px-4 border-r border-slate-800 z-40">
       <div className="mb-10 flex items-center justify-center">
-        <span className="text-2xl font-bold text-white tracking-wide">AI Biz Admin</span>
+        <span className="text-2xl font-bold text-white tracking-wide">Admin</span>
       </div>
       <nav className="flex flex-col gap-2">
         {navItems.map((item) => (
@@ -34,7 +35,37 @@ export default function Sidebar() {
         ))}
       </nav>
       <div className="flex-grow" />
-      <div className="text-xs text-slate-600 text-center pb-2">© {new Date().getFullYear()} AI Biz Platform</div>
+
+<button
+  onClick={() => {
+
+    localStorage.removeItem("token");
+
+    window.location.href = "/login";
+  }}
+  className="
+    w-full
+    bg-red-600
+    hover:bg-red-500
+    transition
+    rounded-2xl
+    py-3
+    text-white
+    font-medium
+    mb-4
+  "
+>
+  Logout
+</button>
+
+<div className="
+  text-xs
+  text-slate-600
+  text-center
+  pb-2
+">
+  © {new Date().getFullYear()} AI Biz Platform
+</div>
     </aside>
   );
 }

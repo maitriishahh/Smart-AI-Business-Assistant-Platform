@@ -4,6 +4,9 @@ from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 
 from backend.app.auth.dependencies import get_current_user
 from backend.app.services.document_service import process_upload_document
+from backend.app.database.mongodb import database
+from datetime import datetime, UTC
+documents_collection = database["documents"]
 
 router = APIRouter(
     prefix = "/upload",
@@ -12,6 +15,7 @@ router = APIRouter(
 
 UPLOAD_DIR =  "backend/app/uploads"
 os.makedirs(UPLOAD_DIR,exist_ok=True)
+
 
 @router.post("/pdf")
 async def upload_pdf(file:UploadFile=File(...),
@@ -39,7 +43,23 @@ current_user: dict = Depends(get_current_user)):
         user_id=user_id,
         filename=file.filename
     )
+   
+    await documents_collection.insert_one({
 
+    "user_id": user_id,
+
+    "original_filename":
+        file.filename,
+
+    "stored_filename":
+        unique_filename,
+
+    "path":
+        file_path,
+
+    "uploaded_at":
+        datetime.now(UTC)
+})
     return{
         "message":"PDF uploaded succssfully."
     }
