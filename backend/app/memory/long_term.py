@@ -15,12 +15,26 @@ async def save_user_memory(user_id:str, memory:str):
     }
     await memory_collection.insert_one(memory_doc)
 
-async def get_user_memories(user_id:str,limit:int=10):
-    convo = (memory_collection.find_one({"user_id":user_id}).sort("timestamp",-1).limit(limit))
+async def get_user_memories(
+    user_id: str,
+    limit: int = 10
+):
+
+    convo = (
+        memory_collection
+        .find({"user_id": user_id})
+        .sort("timestamp", -1)
+        .limit(limit)
+    )
 
     memories = []
+
     async for memory in convo:
-        memories.append(memory["memory"])
+
+        memories.append(
+            memory["memory"]
+        )
+
     memories.reverse()
 
     return memories

@@ -16,7 +16,7 @@ async def save_convo(user_id: str, session_id: str, user_msg:str, assistant_resp
     await conversation_collection.insert_one(conversation)
 
 async def get_recent_conversations(user_id: str, limit: int=5):
-    convo = (conversation_collection.find({"user_id":user_id}).sort("timetamp",-1).limit(limit))
+    convo = (conversation_collection.find({"user_id":user_id}).sort("timestamp",-1).limit(limit))
 
     conversations = []
 
