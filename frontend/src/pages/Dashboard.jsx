@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../api/axios";
+import Sidebar from "../components/Sidebar";
 
 export default function Dashboard() {
 
@@ -168,12 +169,11 @@ export default function Dashboard() {
 
   return (
 
-    <div className="
-      min-h-screen
-      bg-slate-950
-      text-white
-      p-8
-    ">
+  <div className="flex bg-slate-950 min-h-screen text-white">
+
+    <Sidebar />
+
+    <div className="ml-64 p-8 w-full">
 
       {/* ========================================= */}
       {/* PAGE TITLE */}
@@ -688,6 +688,7 @@ export default function Dashboard() {
           </div>
         )}
       </div>
-    </div>
-  );
+       </div>
+  </div>
+);
 }

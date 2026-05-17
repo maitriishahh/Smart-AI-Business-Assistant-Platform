@@ -26,6 +26,9 @@ from backend.app.utils.handlers import (
 
 from backend.app.utils.logger import logger
 
+from backend.app.api.admin_routes import (
+    router as admin_router
+)
 
 app = FastAPI(
     title="Smart AI Business Assistant",
@@ -107,7 +110,7 @@ app.include_router(
     prefix="/automation",
     tags=["Automation"]
 )
-
+app.include_router(admin_router)
 
 # =========================================
 # Root Endpoint
