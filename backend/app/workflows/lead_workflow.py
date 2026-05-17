@@ -19,6 +19,7 @@ from backend.app.automations.followup_generator import (
     generate_followup
 )
 
+
 async def lead_capture_pipeline(
     message: str,
     session_id: str
@@ -26,9 +27,9 @@ async def lead_capture_pipeline(
 
     state = get_lead_state(session_id)
 
-    # =========================
+    # =========================================
     # PHONE STEP
-    # =========================
+    # =========================================
 
     if state["awaiting_phone"]:
 
@@ -52,11 +53,23 @@ async def lead_capture_pipeline(
         }
 
         await save_lead(lead_data)
-        followup_message = generate_followup(
-            lead_data)   
-        # =========================
+
+        # =========================================
+        # FIXED ASYNC BUG
+        # =========================================
+
+        followup_result = await generate_followup(
+            lead_data
+        )
+
+        followup_message = followup_result.get(
+            "followup_email",
+            "Follow-up could not be generated."
+        )
+
+        # =========================================
         # RESET STATE
-        # =========================
+        # =========================================
 
         state["collecting"] = False
         state["awaiting_phone"] = False
@@ -67,20 +80,20 @@ async def lead_capture_pipeline(
         state["requirements"] = None
 
         return {
-    "completed": True,
-    "reply": f"""
+            "completed": True,
+            "reply": f"""
 Thank you! Your lead has been captured successfully.
 
 AI-Generated Follow-Up Message:
 
 {followup_message}
 """.strip(),
-    "lead_data": lead_data
-}
+            "lead_data": lead_data
+        }
 
-    # =========================
+    # =========================================
     # NORMAL EXTRACTION
-    # =========================
+    # =========================================
 
     extracted_name = extract_name(message)
     extracted_email = extract_email(message)
@@ -103,9 +116,9 @@ AI-Generated Follow-Up Message:
     if extracted_requirements:
         state["requirements"] = extracted_requirements
 
-    # =========================
+    # =========================================
     # CHECK MISSING FIELDS
-    # =========================
+    # =========================================
 
     missing_fields = get_missing_fields(state)
 
@@ -120,9 +133,9 @@ AI-Generated Follow-Up Message:
             "reply": f"Please provide your {missing_text}."
         }
 
-    # =========================
+    # =========================================
     # ASK OPTIONAL PHONE
-    # =========================
+    # =========================================
 
     if not state["phone"]:
 
@@ -138,9 +151,9 @@ Otherwise, type 'skip'.
 """
         }
 
-    # =========================
+    # =========================================
     # SAVE LEAD
-    # =========================
+    # =========================================
 
     lead_data = {
         "name": state["name"],
@@ -155,12 +168,23 @@ Otherwise, type 'skip'.
     }
 
     await save_lead(lead_data)
-    followup_message = generate_followup(
+
+    # =========================================
+    # FIXED ASYNC BUG
+    # =========================================
+
+    followup_result = await generate_followup(
         lead_data
-)
-    # =========================
+    )
+
+    followup_message = followup_result.get(
+        "followup_email",
+        "Follow-up could not be generated."
+    )
+
+    # =========================================
     # RESET STATE
-    # =========================
+    # =========================================
 
     state["collecting"] = False
     state["awaiting_phone"] = False
@@ -171,13 +195,13 @@ Otherwise, type 'skip'.
     state["requirements"] = None
 
     return {
-    "completed": True,
-    "reply": f"""
+        "completed": True,
+        "reply": f"""
 Thank you! Your lead has been captured successfully.
 
 AI-Generated Follow-Up Message:
 
 {followup_message}
 """.strip(),
-    "lead_data": lead_data
-}
+        "lead_data": lead_data
+    }

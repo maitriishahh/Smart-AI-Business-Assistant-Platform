@@ -4,6 +4,7 @@ from backend.app.workflows.chat_workflow import (
     get_convo_context,
     update_convo_context
 )
+
 from google import genai
 from groq import Groq
 
@@ -26,6 +27,8 @@ class ExecutorAgent:
             api_key=settings.GROQ_API_KEY
         )
 
+
+
     async def execute(
         self,
         message: str,
@@ -37,6 +40,7 @@ class ExecutorAgent:
         # =========================
         # LOAD MEMORY
         # =========================
+
         history = await get_convo_context(user_id)
 
         # LIMIT HISTORY
@@ -51,10 +55,54 @@ class ExecutorAgent:
                 f"Assistant: {chat['assistant']}\n\n"
             )
 
+
+
         # =========================
         # RETRIEVE DOCUMENTS
         # =========================
+
         retrieved_docs = []
+
+        if plan["needs_retrieval"]:
+
+            retrieved_docs = await retrieve_relevant_chunks(
+                question=message,
+                user_id=user_id
+            )
+
+            # LIMIT CHUNKS
+            retrieved_docs = retrieved_docs[:2]
+
+
+
+        # =========================
+        # BUILD CONTEXT
+        # =========================
+
+        if retrieved_docs:
+
+            context = "\n\n".join([
+
+                doc.page_content
+                if hasattr(doc, "page_content")
+                else str(doc)
+
+                for doc in retrieved_docs
+
+            ])
+
+        else:
+
+            context = (
+                "No relevant uploaded document context available."
+            )
+
+
+
+        # =========================
+        # BUILD PROMPT
+        # =========================
+
         if plan["needs_retrieval"]:
 
             prompt = f"""
@@ -99,27 +147,13 @@ Conversation:
 User Message:
 {message}
 """
-            retrieved_docs = await retrieve_relevant_chunks(
-            question=message,
-            user_id=user_id
-        )
 
-            # LIMIT CHUNKS
-            retrieved_docs = retrieved_docs[:2]
 
-        # =========================
-        # BUILD CONTEXT
-        # =========================
-        context = (
-            "\n\n".join(retrieved_docs)
-            if retrieved_docs
-            else "No relevant uploaded document context available."
-        )
 
-    
         # =========================
         # GEMINI PRIMARY
         # =========================
+
         try:
 
             print("Using Gemini...")
@@ -133,9 +167,12 @@ User Message:
 
             provider = "gemini"
 
+
+
         # =========================
         # GROQ FALLBACK
         # =========================
+
         except Exception as e:
 
             print("Gemini failed:", e)
@@ -160,9 +197,12 @@ User Message:
 
             provider = "groq"
 
+
+
         # =========================
         # UPDATE MEMORY
         # =========================
+
         await update_convo_context(
             user_id=user_id,
             session_id=session_id,
@@ -170,9 +210,12 @@ User Message:
             assistant_response=assistant_reply
         )
 
+
+
         # =========================
         # RETURN RESPONSE
         # =========================
+
         return {
             "response": assistant_reply,
             "retrieved_docs": retrieved_docs,

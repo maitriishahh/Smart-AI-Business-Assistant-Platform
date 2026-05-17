@@ -10,27 +10,80 @@ from backend.app.database.collections import (
 # LEAD INTENT DETECTION
 # =========================
 
-def detect_lead_intent(message):
+def detect_lead_intent(message: str):
 
     message = message.lower().strip()
 
-    high_intent_keywords = [
-        "pricing",
-        "demo",
-        "interested",
-        "buy",
-        "subscription",
-        "crm",
-        "automation",
-        "contact"
+    # =========================================
+    # HIGH-INTENT LEAD KEYWORDS
+    # =========================================
+
+    lead_keywords = [
+
+        # Hiring / service interest
+        "hire",
+        "hiring",
+        "interested in",
+        "need your service",
+        "interested in your service",
+        "interested in working",
+        "work with you",
+        "looking for services",
+        "consultation",
+        "book a call",
+        "schedule a call",
+        "contact me",
+        "get in touch",
+
+        # Contact sharing
+        "my email is",
+        "my phone number is",
+        "my company is",
+
+        # Business inquiry
+        "request a quote",
+        "business inquiry",
+        "partnership",
+        "collaboration",
+
+        # Explicit lead actions
+        "i want to proceed",
+        "let's discuss",
+        "reach out to me"
     ]
 
-    for keyword in high_intent_keywords:
+    # =========================================
+    # NEGATIVE FILTERS
+    # Prevent RAG questions from becoming leads
+    # =========================================
 
-        if keyword in message:
-            return True
+    negative_keywords = [
+        "pricing",
+        "services",
+        "summarize",
+        "summary",
+        "explain",
+        "pdf",
+        "document",
+        "uploaded file",
+        "what does",
+        "tell me about",
+        "information",
+        "details",
+        "content",
+        "analysis",
+        "report"
+    ]
 
-    return False
+    # If message looks informational → NOT lead intent
+    if any(keyword in message for keyword in negative_keywords):
+        return False
+
+    # =========================================
+    # POSITIVE LEAD DETECTION
+    # =========================================
+
+    return any(keyword in message for keyword in lead_keywords)
 
 
 # =========================
