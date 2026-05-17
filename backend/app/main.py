@@ -7,6 +7,7 @@ from backend.app.api import(
     upload_routes, 
     workflow_routes
 )
+from backend.app.api.automation_routes import router as automation_router
 
 app = FastAPI(
     title="Smart AI Buisness Assistant",
@@ -19,6 +20,8 @@ app.include_router(lead_routes.router)
 app.include_router(dashboard_routes.router)
 app.include_router(upload_routes.router)
 app.include_router(workflow_routes.router)
+app.include_router(automation_router, prefix="/automation",tags=["Automation"])
+
 @app.get("/")
 async def root():
     return{

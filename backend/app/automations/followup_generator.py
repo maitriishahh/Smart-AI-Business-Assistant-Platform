@@ -8,16 +8,21 @@ gemini_client = genai.Client(
     api_key=settings.GEMINI_API_KEY
 )
 
-
 groq_client = Groq(
     api_key=settings.GROQ_API_KEY
 )
 
 
-def generate_followup(lead_data):
+async def generate_followup(
+    lead_data,
+    followup_type="general"
+):
 
     prompt = f"""
 Generate a professional business follow-up email.
+
+Follow-Up Type:
+{followup_type}
 
 Lead Details:
 Name: {lead_data.get("name")}
@@ -30,6 +35,7 @@ Keep the email:
 - professional
 - friendly
 - business-oriented
+
 End the email with:
 Best regards,
 AI Business Assistant Team
@@ -48,7 +54,11 @@ AI Business Assistant Team
             contents=prompt
         )
 
-        return response.text
+        return {
+            "status": "success",
+            "provider": "Gemini",
+            "followup_email": response.text
+        }
 
     # =========================
     # GROQ FALLBACK
@@ -70,8 +80,12 @@ AI Business Assistant Team
             ]
         )
 
-        return (
-            groq_response
-            .choices[0]
-            .message.content
-        )
+        return {
+            "status": "success",
+            "provider": "Groq",
+            "followup_email": (
+                groq_response
+                .choices[0]
+                .message.content
+            )
+        }
