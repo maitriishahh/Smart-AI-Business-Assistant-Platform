@@ -100,3 +100,41 @@ st.subheader("✅ Automation Status")
 st.success("Email Summarization Automation Active")
 st.success("Follow-Up Automation Active")
 st.success("CRM Sync Automation Active")
+
+st.divider()
+
+
+# =========================================
+# DOCUMENT MANAGEMENT
+# =========================================
+
+st.subheader("📄 Uploaded Documents")
+
+
+upload_folder = "backend/app/uploads"
+
+
+if os.path.exists(upload_folder):
+
+    uploaded_files = os.listdir(upload_folder)
+
+    if uploaded_files:
+
+        st.metric(
+            "Uploaded Documents",
+            len(uploaded_files)
+        )
+
+        for index, folder in enumerate(uploaded_files, start=1):
+
+            st.markdown(
+                f"📄 Uploaded_Document_{index}.pdf"
+            )
+
+    else:
+
+        st.info("No uploaded documents found.")
+
+else:
+
+    st.warning("Upload folder does not exist.")
